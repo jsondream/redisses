@@ -132,7 +132,7 @@ public class RedisPoolClient {
                 return pool != null ? pool.getResource() : null;
             }
         } catch (Exception e) {
-            //TODO:log....
+            //TODO: connect error log的记录....
         }
         return null;
     }
