@@ -4,9 +4,6 @@ import com.jsondream.redisses.client.domainInterfaces.RedisDoWithOutInterface;
 import com.jsondream.redisses.client.domainInterfaces.RedisDomainInterface;
 import redis.clients.jedis.Jedis;
 
-import java.util.List;
-import java.util.Set;
-
 /**
  * <p>
  * redisAPi接口

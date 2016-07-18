@@ -6,7 +6,12 @@
 
     <groupId>com.jsondream</groupId>
     <artifactId>redisses</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>redisses-mq</module>
+        <module>redisses-client</module>
+    </modules>
     <dependencies>
         <!-- redis客户端依赖 -->
         <dependency>
@@ -19,11 +24,6 @@
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
             <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.mina</groupId>
-            <artifactId>mina-core</artifactId>
-            <version>2.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
