@@ -1,9 +1,11 @@
+
 # redisses  
 
 ## redisses是什么  
 
-redisses是一个机遇redis的base-demo工程，包括使用java8的lambda来封装连接的获取和释放，
-包括简单的redisMq的实现  
+**redisses一个redis操作相关的项目，包括用户存储redis对象变成hashmap的工具，包括支持ack应答，取消消息的mq**  
+**redisses是一个机遇redis的base-demo工程，包括使用java8的lambda来封装连接的获取和释放，
+包括简单的redisMq的实现**  
 
 ### redisses的client  
 
