@@ -11,8 +11,14 @@
     <modules>
         <module>redisses-mq</module>
         <module>redisses-client</module>
+        <module>redisses-common</module>
     </modules>
     <dependencies>
+        <dependency>
+            <artifactId>redisses</artifactId>
+            <groupId>com.jsondream</groupId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!-- redis客户端依赖 -->
         <dependency>
             <groupId>redis.clients</groupId>
