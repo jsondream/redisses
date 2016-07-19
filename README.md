@@ -40,7 +40,26 @@ redisses使用java8的lambda来封装了redis的连接资源的获取和释放�
 
 #### 使用方式  
 
+##### lpush/brpop的使用方式  
 
+做成中。。。。。
+
+##### 发布订阅的使用方式  
+
+在一个新开的线程中创建Subscriber对象,并且订阅响应的队列  
+
+```java
+final Subscriber subscriber = new Subscriber();
+RedisClient.doWithOut(redis -> redis.subscribe(subscriber, CHANNEL_NAME));
+```  
+
+***因为订阅的行为会阻塞线程,所以要使用一个新的线程去订阅呢。***  
+
+生产者发送消息直接调用  
+
+```java
+Publisher.publish(CHANNEL_NAME, line);
+```
 
 #### 缺陷  
 
