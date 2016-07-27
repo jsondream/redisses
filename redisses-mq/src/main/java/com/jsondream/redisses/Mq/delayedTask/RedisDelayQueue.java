@@ -15,8 +15,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * 基于redis的延迟队列
  * </p>
- *
+ * <p>
  * TODO:这里在考虑是否用直接从delayQueue弹出任务放入到另外的list中，还是直接给使用者返回元素值
+ *
  * @author wangguangdong
  * @version 1.0
  * @Date 16/7/27
@@ -52,7 +53,24 @@ public class RedisDelayQueue {
     private final Condition available = lock.newCondition();
 
     /**
+     * <p>
      * 参考了delayQueue的内部结构
+     * </p>
+     * </br>
+     * Thread designated to wait for the element at the head of
+     * the queue.  This variant of the Leader-Follower pattern
+     * (http://www.cs.wustl.edu/~schmidt/POSA/POSA2/) serves to
+     * minimize unnecessary timed waiting.  When a thread becomes
+     * the leader, it waits only for the next delay to elapse, but
+     * other threads await indefinitely.  The leader thread must
+     * signal some other thread before returning from take() or
+     * poll(...), unless some other thread becomes leader in the
+     * interim.  Whenever the head of the queue is replaced with
+     * an element with an earlier expiration time, the leader
+     * field is invalidated by being reset to null, and some
+     * waiting thread, but not necessarily the current leader, is
+     * signalled.  So waiting threads must be prepared to acquire
+     * and lose leadership while waiting.
      */
     private Thread leader = null;
 
@@ -119,7 +137,9 @@ public class RedisDelayQueue {
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
-            for (; ; ) {
+            // 用for(;;)代替while(true)
+            // 因为for(;;)编译后指令少，不占用寄存器，而且没有判断跳转
+            for (;;) {
                 // 获取到期的业务对象信息
                 Set<String> elementValue = peek();
                 // 判断是否有过期的元素,如果有的话直接出队
