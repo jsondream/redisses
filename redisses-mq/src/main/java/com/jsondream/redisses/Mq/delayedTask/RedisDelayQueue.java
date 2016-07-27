@@ -149,7 +149,7 @@ public class RedisDelayQueue {
                 }
             }
         } finally {
-            if (leader == null && peek() != null)
+            if (leader == null && !peek().isEmpty())
                 available.signal();
             lock.unlock();
         }
@@ -193,12 +193,18 @@ public class RedisDelayQueue {
         final Long currentTimeMillis = System.currentTimeMillis();
         return RedisClient.domain(redis -> {
 
+            /**
+             * 获取到Score在当前时间~之后的#MAX_WAIT_TIME#时间内的的任务
+             * 当然，这个MAX_WAIT_TIME最好根据实际的使用情况来调整，或者根据一定的用量算法来匹配一个合适的值
+             */
             Set<Tuple> tupleSet = redis
                 .zrangeByScoreWithScores(delayedQueueKeyName, currentTimeMillis,
                     currentTimeMillis + MAX_WAIT_TIME);
+            // 如果MAX_WAIT_TIME内没任务就返回最大等待时间MAX_WAIT_TIME
             if (tupleSet.isEmpty()) {
                 return MAX_WAIT_TIME;
             } else {
+                // 返回队首的score值
                 Tuple tuple = tupleSet.iterator().next();
                 return (long) tuple.getScore();
             }
