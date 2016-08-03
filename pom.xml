@@ -12,6 +12,7 @@
         <module>redisses-mq</module>
         <module>redisses-client</module>
         <module>redisses-common</module>
+        <module>redisses-pike</module>
     </modules>
     <dependencies>
         <dependency>
