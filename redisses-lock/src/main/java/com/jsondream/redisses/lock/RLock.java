@@ -6,6 +6,7 @@ import redis.clients.jedis.Transaction;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,13 +20,14 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  * @Date 16/8/3
  */
-public class RLock<T>{
+public class RLock{
 
     /**
      * 分布式锁的前缀
      */
     private static final String lockPrefix = "RLOCK:";
     private static final String subPrefix = "-";
+
 
     /**
      * 最大等待时限,单位为秒
@@ -35,25 +37,33 @@ public class RLock<T>{
     /**
      * 加锁操作
      *
+     * @param key
      * @param time
      * @param unit
      * @return
      */
-    public void lock(long time, TimeUnit unit) {
-
+    public void lock(String key,long time, TimeUnit unit) {
+        
     }
 
     public void lock(String key){
+        // 第一版可能是线程sleep(N秒)然后重新尝试获取锁
+        // 第二版考虑吧每个尝试锁的线程放到一个等待队列中
+        // 然后根据等待队列的数量(即锁竞争的激烈情况)来动态规划尝试获取锁的时间
+        // 因为这里的获取锁是从redis中做大量的操作,所以和普通的lock获取不同
+        // 所以这里需要考虑对redis锁获取的频次
         // TODO:阻塞
-        tryLock(key);
+        tryAcquire(key);
     }
     /**
-     * 尝试获取锁
+     * 尝试获取锁</br>
+     * 我们这里的获取方式是非公平式的获取
+     * 没有一个先入先出的队列限制,日后考虑扩展
      *
      * @param key
      * @return
      */
-    private boolean tryLock(String key) {
+    private boolean tryAcquire(String key) {
         final String keys = lockPrefix + key;
         return RedisClient.domain(redis -> {
             String uid = UUID.randomUUID().toString();
@@ -114,7 +124,7 @@ public class RLock<T>{
                 } else {
                     // 如果值位空很可能是释放锁的操作已经是临界点了
                     // 为了安全操作的考虑需要重新调用tryLock来尝试获取锁
-                    tryLock(keys);
+                    tryAcquire(keys);
                 }
             }
             return false;
