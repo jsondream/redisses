@@ -36,7 +36,8 @@ public class RLock {
     /**
      * 线程获取锁失败的时候挂起的时间
      */
-    private static final long parkNanosTime = TimeUnit.NANOSECONDS.convert(3,TimeUnit.MILLISECONDS);
+    private static final long parkNanosTime =
+        TimeUnit.NANOSECONDS.convert(3, TimeUnit.MILLISECONDS);
 
     /**
      * 加锁操作
@@ -46,10 +47,33 @@ public class RLock {
      * @param unit
      * @return
      */
-    public void lock(String key, long time, TimeUnit unit) {
-
+    public boolean tryLock(String key, long time, TimeUnit unit) throws InterruptedException {
+        long nanosTimeout = TimeUnit.NANOSECONDS.convert(time, unit);
+        if (time <= 0L)
+            return false;
+        // 过期的nanoTime
+        final long deadline = System.nanoTime() + nanosTimeout;
+        for (; ; ) {
+            // 尝试获取锁
+            if (tryAcquire(key)) {
+                return true;
+            }
+            nanosTimeout = deadline - System.nanoTime();
+            if (nanosTimeout <= 0L)
+                return false;
+            // 挂起线程
+            parkThread(parkNanosTime);
+            // 支持线程中断
+            if (Thread.interrupted())
+                throw new InterruptedException();
+        }
     }
 
+    /**
+     * 加锁
+     *
+     * @param key
+     */
     public void lock(String key) {
         // 第一版可能是线程sleep(N秒)然后重新尝试获取锁
         // 第二版考虑吧每个尝试锁的线程放到一个等待队列中
@@ -57,12 +81,22 @@ public class RLock {
         // 因为这里的获取锁是从redis中做大量的操作,所以和普通的lock获取不同
         // 所以这里需要考虑对redis锁获取的频次
 
-
         // 循环获取锁
-        while (!tryAcquire(key)) {
+        for (; ; ) {
+            // 查看是否获取到锁
+            if (tryAcquire(key)) {
+                return;
+            }
             // 线程挂起一点时间后继续重试获取锁
-            LockSupport.parkNanos(parkNanosTime);
+            parkThread(parkNanosTime);
         }
+    }
+
+    /**
+     * 挂起当前线程
+     */
+    private void parkThread(long nanoTime) {
+        LockSupport.parkNanos(nanoTime);
     }
 
     /**
