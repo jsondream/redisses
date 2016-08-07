@@ -113,7 +113,7 @@ public class RLock {
             String uid = UUID.randomUUID().toString();
             long currentTimeMillis = System.currentTimeMillis();
             // 超时的时间
-            long expireTime = +maxLockSecond * 1000;
+            long expireTime =System.currentTimeMillis() +maxLockSecond * 1000;
             // 一个系统时间+uid来组成值
             String lockValue = expireTime + subPrefix + uid;
             // 尝试获取锁
@@ -136,7 +136,7 @@ public class RLock {
                 if (StringUtils.isNoneBlank(oldValue)) {
                     String[] valueResult = oldValue.split(subPrefix);
                     // 处理锁超时的情况
-                    if (Long.parseLong(valueResult[0]) > currentTimeMillis) {
+                    if (Long.parseLong(valueResult[0]) < currentTimeMillis) {
                         /**
                          * 这里为什么没有采取参考的文章中getSet的方式呢
                          * 试想一下，如果我们的c1死锁
