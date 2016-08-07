@@ -183,7 +183,7 @@ public class RLock {
      */
     public boolean unlock(String key) {
         return RedisClient.domain(redis -> {
-            Long res = redis.del(key);
+            Long res = redis.del(lockPrefix+key);
             return res.equals(1l);
         });
     }
