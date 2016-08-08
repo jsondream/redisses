@@ -9,10 +9,10 @@
 
 ### 目前的功能列表  
 
-* [redisses的client](redisses-client/README.md)  
-* [基于redis的抢购](redisses-spike/README.md)  
-* [基于rediss的并且具有ack机制的消息队列](redisses-mq/README.md)   
-* [基于rediss的分布式锁](redisses-lock/README.md)   
+* [redisses的client](redisses-client)  
+* [基于redis的抢购](redisses-spike)  
+* [基于rediss的并且具有ack机制的消息队列](redisses-mq)   
+* [基于rediss的分布式锁](redisses-lock)   
 
 ### demo环境描述  
 
