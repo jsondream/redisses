@@ -34,6 +34,11 @@ public class RLock {
     private static final int maxLockSecond = 30;
 
     /**
+     * 这里是为了下一个版本进行删除时,对锁的拥有者是否为当前要unlock的线程的标志做的预留字段
+     */
+    String uid = UUID.randomUUID().toString();
+
+    /**
      * 线程获取锁失败的时候挂起的时间
      */
     private static final long parkNanosTime =
@@ -110,7 +115,6 @@ public class RLock {
     private boolean tryAcquire(String key) {
         final String keys = lockPrefix + key;
         return RedisClient.domain(redis -> {
-            String uid = UUID.randomUUID().toString();
             long currentTimeMillis = System.currentTimeMillis();
             // 超时的时间
             long expireTime =System.currentTimeMillis() +maxLockSecond * 1000;
