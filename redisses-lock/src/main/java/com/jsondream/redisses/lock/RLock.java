@@ -117,13 +117,13 @@ public class RLock {
         return RedisClient.domain(redis -> {
             long currentTimeMillis = System.currentTimeMillis();
             // 超时的时间
-            long expireTime =System.currentTimeMillis() +maxLockSecond * 1000;
+            long expireTime = System.currentTimeMillis() + maxLockSecond * 1000;
             // 一个系统时间+uid来组成值
             String lockValue = expireTime + subPrefix + uid;
-            // 尝试获取锁
-            Long res = redis.setnx(keys, lockValue);
+            // 尝试获取锁,这里redis提供了setNx和expire具有原子性的一步操作
+            String res = redis.set(keys, lockValue, "NX", "PX", maxLockSecond * 1000);
             // 获取锁成功的情况
-            if (res.equals(1l)) {
+            if (res != null && "OK".equals(res)) {
                 // 设置过期时间,防止线程崩溃后死锁
                 redis.expire(keys, maxLockSecond);
                 return true;
@@ -187,7 +187,7 @@ public class RLock {
      */
     public boolean unlock(String key) {
         return RedisClient.domain(redis -> {
-            Long res = redis.del(lockPrefix+key);
+            Long res = redis.del(lockPrefix + key);
             return res.equals(1l);
         });
     }
